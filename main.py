@@ -13,18 +13,21 @@ from models.wgan_gp import WGAN_GP
 
 
 if __name__ == "__main__":
-    args = argparse.Argumentargs(description="Pytorch implementation of GAN models.")
+    args = argparse.ArgumentParser(description="Pytorch implementation of GAN models.")
+    
 
     args.add_argument('--model', type=str, default='DCGAN', choices=['DCGAN', 'WGAN-CP', 'WGAN-GP'])
-    args.add_argument('--is_train', type=str, default='False')
-    args.add_argument('--dataroot', required=True, help='path to dataset')
+    args.add_argument('--is_train', type=bool, default=False)
+    args.add_argument('--dataroot', required=False, help='path to dataset')
     args.add_argument('--download', type=str, default='False')
     args.add_argument('--epochs', type=int, default=50, help='The number of epochs to run')
     args.add_argument('--batch_size', type=int, default=64, help='The size of batch')
-    args.add_argument('--cuda',  type=str, default='True', help='Availability of cuda')
+    args.add_argument('--cuda',  type=bool, default=True, help='Availability of cuda')
 
     args.add_argument('--load_D', type=str, default='False', help='Path for loading Discriminator network')
     args.add_argument('--load_G', type=str, default='False', help='Path for loading Generator network')
+
+    args = args.parse_args()
 
 
 
@@ -42,15 +45,13 @@ if __name__ == "__main__":
     if args.is_train:
         if (args.load_G and args.load_D is not None):
             model.load_weight(args.load_D, args.load_G)
+        print("Training")
         model.train()
     else:
-        if (args.load_G and args.load_D is not None):
-            model.load_weight(args.load_D, args.load_G)
-        else:
-            print("For prediction please provide weights")
+        model.load_weight(args.load_D, args.load_G)
 
     model.gan.eval()
 
     
-    
+    generate_images(0, "/home/chahak/Desktop/project/Fake-Face-Generation/", None, 16, model.gan, model.device)
 

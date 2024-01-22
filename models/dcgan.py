@@ -73,7 +73,7 @@ class Generator(nn.Module):
 
 class DC_GAN(object):
     def __init__(self, epochs, cuda, batch_size, dataroot, lr=2e-4):
-        self.device = torch.device("cuda:0" if (torch.cuda.is_available() and cuda) else "cpu")
+        self.device = torch.device("cuda:0" if (torch.cuda.is_available() and cuda == "True") else "cpu")
         self.lr = lr
         self.batch_size = batch_size
         self.img_sze = 64
@@ -82,15 +82,17 @@ class DC_GAN(object):
         self.num_epoch = epochs
         self.feature_disc = 64
         self.feature_gen = 64
-        self.print(self.device)
+        print(self.device)
         self.gan = Generator(self.z_dim, self.channel_img, self.feature_gen)
         self.disc = Discriminator(self.channel_img, self.feature_disc)
         initialize_weight(self.disc)
         initialize_weight(self.gan)
 
-        self.loader = get_data_loader(dataroot, batch_size)
+        self.dataroot = dataroot
 
-        self.opt_gen = optim.Adam(self.gen.parameters(), lr=lr, betas = (0.5, 0.999))
+        
+
+        self.opt_gan = optim.Adam(self.gan.parameters(), lr=lr, betas = (0.5, 0.999))
         self.opt_disc = optim.Adam(self.disc.parameters(), lr=lr, betas = (0.5, 0.999))
         self.criterion = nn.BCELoss()
 
@@ -99,6 +101,7 @@ class DC_GAN(object):
 
 
     def train(self):
+        self.loader = get_data_loader(self.dataroot, self.batch_size)
         for epoch in range(self.num_epoch):
             for i, (real, _) in enumerate(self.loader):
                 real = real.to(self.device)
@@ -122,9 +125,9 @@ class DC_GAN(object):
                 
                 output = self.disc(fake).reshape(-1)
                 loss_gen = self.criterion(output, torch.ones_like(output))
-                self.gen.zero_grad()
+                self.gan.zero_grad()
                 loss_gen.backward()
-                self.opt_gen.step()
+                self.opt_gan.step()
                 
                 
                 if (i+1) %100 == 0:
@@ -141,8 +144,11 @@ class DC_GAN(object):
 
 
     def load_weight(self, disc_path, gan_path):
-        self.disc.load_state_dict(disc_path)
-        self.gan.load_state_dict(gan_path)
+        self.disc.load_state_dict(torch.load(disc_path))
+        self.gan.load_state_dict(torch.load(gan_path))
+
+    def generate_image(self):
+        pass
 
 
 

@@ -141,4 +141,8 @@ class WGAN_clipping(object):
         torch.save(self.gan.state_dict(), 'generator_WGAN_clipping.pth')
         torch.save(self.disc.state_dict(), 'discriminator_WGAN_clipping.pth')
 
+    def load_weight(self, disc_path, gan_path):
+        self.disc.load_state_dict(disc_path)
+        self.gan.load_state_dict(gan_path)
+
 
