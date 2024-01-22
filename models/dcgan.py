@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from utils import initialize_weight, get_data_loader
 import torch.optim as optim
+import os
 
 
 
@@ -137,3 +138,13 @@ class DC_GAN(object):
         print("Saving the model")
         torch.save(self.gan.state_dict(), 'generator_DCGAN.pth')
         torch.save(self.disc.state_dict(), 'discriminator_DCGAN.pth')
+
+
+    def load_weight(self, disc_path, gan_path):
+        self.disc.load_state_dict(disc_path)
+        self.gan.load_state_dict(gan_path)
+
+
+
+
+

@@ -25,7 +25,8 @@ if __name__ == "__main__":
 
     args.add_argument('--load_D', type=str, default='False', help='Path for loading Discriminator network')
     args.add_argument('--load_G', type=str, default='False', help='Path for loading Generator network')
-    args.add_argument('--generator_iters', type=int, default=10000, help='The number of iterations for generator in WGAN model.')
+
+
 
 
     if args.model == "DCGAN":
@@ -39,7 +40,16 @@ if __name__ == "__main__":
         exit()
     
     if args.is_train:
+        if (args.load_G and args.load_D is not None):
+            model.load_weight(args.load_D, args.load_G)
         model.train()
+    else:
+        if (args.load_G and args.load_D is not None):
+            model.load_weight(args.load_D, args.load_G)
+        else:
+            print("For prediction please provide weights")
+
+    model.gan.eval()
 
     
     
