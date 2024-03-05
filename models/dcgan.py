@@ -3,6 +3,9 @@ import torch.nn as nn
 from utils import initialize_weight, get_data_loader
 import torch.optim as optim
 import os
+import math
+from matplotlib import pyplot as plt
+import itertools
 
 
 
@@ -96,11 +99,14 @@ class DC_GAN(object):
         self.opt_disc = optim.Adam(self.disc.parameters(), lr=lr, betas = (0.5, 0.999))
         self.criterion = nn.BCELoss()
 
+        self.fixed_noise = torch.randn(64, self.z_dim, 1, 1).to(self.device)
+
+
         self.disc.train()
         self.gan.train()
 
 
-    def train(self):
+    def train(self, generate_images=False):
         self.loader = get_data_loader(self.dataroot, self.batch_size)
         for epoch in range(self.num_epoch):
             for i, (real, _) in enumerate(self.loader):
@@ -134,6 +140,11 @@ class DC_GAN(object):
                     print("Epoch [{}/{}], step [{}/{}], d_loss: {:.4f}, g_loss: {:.4f}".format(
             epoch+1, self.num_epoch, i+1, len(self.loader), loss_disc.item(), loss_gen.item()))
                     
+            if generate_images:
+                self.gan.eval()
+                generate_images(epoch, os.path.join(os.curdir(), "dcgan", "generated_images"), self.fixed_noise, 64, self.gan, self.device,  use_fixed=True)
+                self.gan.train()
+                    
         self.save_model()
                     
     
@@ -147,8 +158,7 @@ class DC_GAN(object):
         self.disc.load_state_dict(torch.load(disc_path))
         self.gan.load_state_dict(torch.load(gan_path))
 
-    def generate_image(self):
-        pass
+
 
 
 

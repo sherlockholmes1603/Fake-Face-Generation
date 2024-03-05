@@ -9,6 +9,7 @@ import argparse
 from models.dcgan import DC_GAN
 from models.wgan_clipping import WGAN_clipping
 from models.wgan_gp import WGAN_GP
+import os
 
 
 
@@ -53,5 +54,5 @@ if __name__ == "__main__":
     model.gan.eval()
 
     
-    generate_images(0, "/home/chahak/Desktop/project/Fake-Face-Generation/", None, 16, model.gan, model.device)
+    generate_images(0, os.path.join(os.curdir, "test", args.model), None, 64, model.gan, model.device)
 

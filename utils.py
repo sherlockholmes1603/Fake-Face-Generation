@@ -10,6 +10,7 @@ import natsort
 import matplotlib.pyplot as plt
 import math
 import itertools
+import os
 
 
 def get_data_loader(root, batch_size):
@@ -52,26 +53,29 @@ def save_gif(path, fps, max_num=100, fixed_noise=False):
 
 # Function to generate image plots
 def generate_images(epoch, path, fixed_noise, num_test_samples, netG, device, use_fixed=False):
-    z = torch.randn(num_test_samples, 100, 1, 1, device=device)
+    z = torch.randn((num_test_samples, 100, 1, 1)).to(device)
     size_figure_grid = int(math.sqrt(num_test_samples))
     title = None
   
     if use_fixed:
         generated_fake_images = netG(fixed_noise)
-        path += 'fixed_noise/'
+        path = os.path.join(path, "fixed_noise")
         title = 'Fixed Noise'
     else:
         generated_fake_images = netG(z)
-        path += 'variable_noise/'
+        path = os.path.join(path, "variable_noise")
         title = 'Variable Noise'
+
+    if not os.path.exists(path):
+        os.makedirs(path)
   
     fig, ax = plt.subplots(size_figure_grid, size_figure_grid, figsize=(6,6))
     for i, j in itertools.product(range(size_figure_grid), range(size_figure_grid)):
         ax[i,j].get_xaxis().set_visible(False)
         ax[i,j].get_yaxis().set_visible(False)
     for k in range(num_test_samples):
-        i = k//4
-        j = k%4
+        i = k//size_figure_grid
+        j = k%size_figure_grid
         ax[i,j].cla()
         ax[i,j].imshow((generated_fake_images[k].cpu().data.numpy().transpose(1, 2, 0) + 1) / 2 )
     label = 'Epoch_{}'.format(epoch+1)

@@ -2,6 +2,10 @@ import torch
 import torch.nn as nn
 from utils import initialize_weight, get_data_loader
 import torch.optim as optim
+import os
+import math
+from matplotlib import pyplot as plt
+import itertools
 
 
 
@@ -91,10 +95,12 @@ class WGAN_GP(object):
         self.opt_disc = optim.RMSprop(self.critic.parameters(), lr=lr)
         self.criterion = nn.BCELoss()
 
+        self.fixed_noise = torch.randn(64, self.z_dim, 1, 1).to(self.device)
+
         self.critic.train()
         self.gan.train()
 
-    def train(self):
+    def train(self, generate_images=False):
         for epoch in range(self.num_epoch):
             for i, (real, _) in enumerate(self.loader):
                 real = real.to(self.device)
@@ -130,6 +136,11 @@ class WGAN_GP(object):
                 if (i+1) %100 == 0:
                     print("Epoch [{}/{}], step [{}/{}], d_loss: {:.4f}, g_loss: {:.4f}".format(
             epoch+1, self.num_epoch, i+1, len(self.loader), loss_critic.item(), loss_gen.item()))
+                    
+            if generate_images:
+                self.gan.eval()
+                generate_images(epoch, os.path.join(os.curdir(), "dcgan", "generated_images"), self.fixed_noise, 64, self.gan, self.device,  use_fixed=True)
+                self.gan.train()
         
         self.save_model()
 
@@ -162,6 +173,8 @@ class WGAN_GP(object):
     def load_weight(self, disc_path, gan_path):
         self.disc.load_state_dict(disc_path)
         self.gan.load_state_dict(gan_path)
+
+    
 
 
 
