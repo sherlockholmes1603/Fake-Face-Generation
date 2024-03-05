@@ -54,11 +54,11 @@ Once the training is complete, the generated fake faces will be saved in the res
 
 1. DCGAN
 
-![dcgan_generated]("test//DCGAN/variable_noiseEpoch_1.png")
+![dcgan_generated](test/DCGAN/variable_noiseEpoch_1.png)
 
 2. WGAN with weight clipping
 
-![wgan_cp_generated]("test/WGAN-CP/variable_noiseEpoch_1.png")
+![wgan_cp_generated](test/DCGAN/variable_noiseEpoch_1.png)
 
 
 - The implementation is inspired by the original papers on DCGAN, WGAN-CP, and WGAN-GP.
