@@ -73,7 +73,7 @@ class Generator(nn.Module):
 
 class WGAN_GP(object):
     def __init__(self, epochs, cuda, batch_size, dataroot, lr=2e-4):
-        self.device = torch.device("cuda:0" if (torch.cuda.is_available() and cuda) else "cpu")
+        self.device = torch.device("cuda:0" if (torch.cuda.is_available() and cuda == "True") else "cpu")
         self.lr = lr
         self.batch_size = batch_size
         self.img_sze = 64
@@ -83,15 +83,15 @@ class WGAN_GP(object):
         self.feature_disc = 64
         self.feature_gen = 64
         self.lambda_gp = 10
-        self.print(self.device)
+        print(self.device)
         self.gan = Generator(self.z_dim, self.channel_img, self.feature_gen)
         self.critic = Critic(self.channel_img, self.feature_disc)
         initialize_weight(self.critic)
         initialize_weight(self.gan)
 
-        self.loader = get_data_loader(dataroot, batch_size)
+        self.dataroot = dataroot
 
-        self.opt_gen = optim.RMSprop(self.gen.parameters(), lr=lr)
+        self.opt_gan = optim.RMSprop(self.gan.parameters(), lr=lr)
         self.opt_disc = optim.RMSprop(self.critic.parameters(), lr=lr)
         self.criterion = nn.BCELoss()
 
@@ -101,6 +101,7 @@ class WGAN_GP(object):
         self.gan.train()
 
     def train(self, generate_images=False):
+        self.loader = get_data_loader(self.dataroot, self.batch_size)
         for epoch in range(self.num_epoch):
             for i, (real, _) in enumerate(self.loader):
                 real = real.to(self.device)
@@ -127,7 +128,7 @@ class WGAN_GP(object):
                 loss_gen = -torch.mean(output)
                 self.gen.zero_grad()
                 loss_gen.backward()
-                self.opt_gen.step()
+                self.opt_gan.step()
                     
                     
 
@@ -171,8 +172,8 @@ class WGAN_GP(object):
         return grad_penalty
     
     def load_weight(self, disc_path, gan_path):
-        self.disc.load_state_dict(disc_path)
-        self.gan.load_state_dict(gan_path)
+        self.critic.load_state_dict(torch.load(disc_path))
+        self.gan.load_state_dict(torch.load(gan_path))
 
     
 

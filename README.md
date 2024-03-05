@@ -60,6 +60,9 @@ Once the training is complete, the generated fake faces will be saved in the res
 
 ![wgan_cp_generated](test/DCGAN/variable_noiseEpoch_1.png)
 
+3. WGAN with gradient penalty
+![wgan_gp_generated](test/WGAN-GP/variable_noiseEpoch_1.png)
+
 
 - The implementation is inspired by the original papers on DCGAN, WGAN-CP, and WGAN-GP.
 - Dataset used for training: [link to dataset]
